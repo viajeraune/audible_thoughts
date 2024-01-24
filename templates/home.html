@@ -4,13 +4,39 @@ Implements a simple Bootstrap 5 form submission interface for YOLOv5 detection.
 
 {% extends "layout.html" %}
 
-{% block title %} <title>Cordelia</title> {% endblock %}
+{% block title %} <title>Audible Thoughts</title> {% endblock %}
 
 {% block content %}
 <div class="container">
-  
+    <img width="500px" src="/static/fireplace.jpeg">
+    <form class="form-inline" id="form">
+        <button type="submit">Generate Music</button>
+    </form>
+
+    <div id="results"></div>
 </div>
 
+<script>
+    document.getElementById('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        fetch('/', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                search: JSON.stringify("image data")
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('results').innerHTML = ""
+            document.getElementById('results').innerHTML += eval(data);
+        });
+
+    });
+</script>
 
 {% endblock %}
 
