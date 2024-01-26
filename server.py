@@ -48,15 +48,22 @@ async def root(item: Item):
 
     encoded_img = "data:image/jpeg;base64," + encoded_img
 
-    print(encoded_img)
+    # print(encoded_img)
 
-    output = replicate.run(
+    output_text = replicate.run(
         "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
         input={
             "image_path": encoded_img,
             "text_prompt": "What is going on in this image?"
         }
     )
-    print(output)
+    output = replicate.run(
+        "lucataco/magnet:e8e2ecd4a1dabb58924aa8300b668290cafae166dd36baf65dad9875877de50e",
+        input={
+            "prompt": output_text,
+            "variations": 1
+        }
+    )
+    print(output[0])
 
-    return {output}
+    return {output[0]}
