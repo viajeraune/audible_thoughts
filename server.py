@@ -41,12 +41,6 @@ class Item(BaseModel):
 
 last_uploaded_file = None
 
-# @app.get("/")
-# async def main():
-#     with open("templates/home.html", 'r') as file:
-#         content = file.read()
-#     return HTMLResponse(content)
-
 @app.post("/upload/")
 async def upload(file: UploadFile = File(...)):
     global last_uploaded_file
