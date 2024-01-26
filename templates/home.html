@@ -4,11 +4,23 @@ Implements a simple Bootstrap 5 form submission interface for YOLOv5 detection.
 
 {% extends "layout.html" %}
 
-{% block title %} <title>Audible Thoughts</title> {% endblock %}
+{% block title %} <title>Echogram</title> {% endblock %}
 
 {% block content %}
 <div class="container">
-    <img width="500px" src="/static/fireplace.jpeg">
+    <!-- <img width="500px" src="/static/fireplace.jpeg"> -->
+
+    <form id="uploadForm" enctype="multipart/form-data">
+        Upload image:
+        <input type="file" name="file" id="file">
+        <input type="button" value="Upload Image" id="submit">
+      </form>
+      
+    <progress id="progressBar" value="0" max="100" style="width:300px;"></progress>
+    <div id="status"></div>
+    
+    <img id="uploadedImage" style="max-width: 500px; max-height: 500px;"/>
+
     <form class="form-inline" id="form">
         <button type="submit">Generate Music</button>
     </form>
@@ -17,6 +29,36 @@ Implements a simple Bootstrap 5 form submission interface for YOLOv5 detection.
 </div>
 
 <script>
+document.getElementById('submit').addEventListener('click', function() {
+    var form = document.getElementById('uploadForm');
+    var formData = new FormData(form);
+    var xhr = new XMLHttpRequest();
+    
+    xhr.open("POST", "/upload/", true);
+
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+            var percentComplete = (e.loaded / e.total) * 100;
+            var progressBar = document.getElementById('progressBar');
+            progressBar.value = percentComplete;
+            document.getElementById('status').innerText = Math.round(percentComplete) + '% uploaded';
+        }
+    };
+
+    xhr.onload = function() {
+        if (xhr.status == 200) {
+            var response = JSON.parse(xhr.responseText);
+            document.getElementById('uploadedImage').src = '/static/' + response.filename;
+        } else {
+            alert("Error uploading file");
+        }
+    };
+
+    xhr.send(formData);
+});
+
+
+
     document.getElementById('form').addEventListener('submit', function(e) {
         e.preventDefault();
 
