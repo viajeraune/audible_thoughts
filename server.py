@@ -56,8 +56,8 @@ async def upload(file: UploadFile = File(...)):
 def get_last_uploaded_file():
     return last_uploaded_file
 
-@app.post("/")
-async def root(item: Item, image_path: str = Depends(get_last_uploaded_file)):
+@app.post("/", response_class=HTMLResponse)
+async def root(request: Request, item: Item, image_path: str = Depends(get_last_uploaded_file)):
     if image_path is None:
         return {"error": "No image has been uploaded yet."}
 
@@ -66,17 +66,32 @@ async def root(item: Item, image_path: str = Depends(get_last_uploaded_file)):
             encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
         encoded_img = "data:image/jpeg;base64," + encoded_img
 
-        print(encoded_img)
-        output = replicate.run(
+        # print(encoded_img)
+        output_text = replicate.run(
             "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
             input={
                 "image_path": encoded_img,
                 "text_prompt": "What is going on in this image? Summarize key vibes in 10 words or less."
             }
         )
-        print(output)
-        return {output}
+        output = replicate.run(
+        "lucataco/magnet:e8e2ecd4a1dabb58924aa8300b668290cafae166dd36baf65dad9875877de50e",
+        input={
+            "prompt": output_text,
+            "variations": 1
+        }
+    )
+        print(output_text)
+        print(output[0])
+        audio_link = output[0]
+        # return {output[0]}
 
+        return templates.TemplateResponse("result.html", {
+            "request": request, 
+            "output_text": output_text,
+            "audio_link": audio_link
+        })
+    
     except Exception as e:
         return {"error": str(e)}
     

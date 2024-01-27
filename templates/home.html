@@ -16,16 +16,24 @@ Implements a simple Bootstrap 5 form submission interface for YOLOv5 detection.
         <input type="button" value="Upload Image" id="submit">
       </form>
       
-    <progress id="progressBar" value="0" max="100" style="width:300px;"></progress>
+    <progress id="progressBar" value="0" max="100"></progress>
     <div id="status"></div>
     
-    <img id="uploadedImage" style="max-width: 500px; max-height: 500px;"/>
+    <img id="uploadedImage"/>
 
     <form class="form-inline" id="form">
         <button type="submit">Generate Music</button>
     </form>
 
-    <div id="results"></div>
+    <div id="results">
+        <!-- <div id="loadingMessage" style="display: none;">Loading...</div> -->
+
+        <p>Analysis Result:</p>
+        <p>{{ output_text }}</p>
+        <a href="{{ audio_link }}" target="_blank">
+            <button>Listen to Audio</button>
+        </a>
+    </div>
 </div>
 
 <script>
@@ -58,26 +66,27 @@ document.getElementById('submit').addEventListener('click', function() {
 });
 
 
+document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-    document.getElementById('form').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        fetch('/', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                search: JSON.stringify("image data")
-            })
+    fetch('/', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            search: JSON.stringify("image data")
         })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('results').innerHTML = ""
-            document.getElementById('results').innerHTML += eval(data);
-        });
-
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('results').innerHTML = html;
+        // document.getElementById('results').style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error:', error);
     });
+});
 </script>
 
 {% endblock %}
