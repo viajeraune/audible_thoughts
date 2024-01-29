@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Request, Form, File, UploadFile, HTTPException
+from fastapi import FastAPI, Request, Form, File, UploadFile, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+import shutil
+import base64
 
 from pydantic import BaseModel
 from typing import List, Optional
@@ -37,33 +39,78 @@ def home(request: Request):
 class Item(BaseModel):
     search: str
 
-@app.post("/")
-async def root(item: Item):
-    print("submit button clicked")
-    test = "test data"
-    
-    image_path = "static/fireplace.jpeg"
-    with open(image_path, "rb") as image_file:
-        encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+last_uploaded_file = None
 
-    encoded_img = "data:image/jpeg;base64," + encoded_img
+@app.post("/upload/")
+async def upload(file: UploadFile = File(...)):
+    global last_uploaded_file
+    try:
+        file_location = f"static/temp/{file.filename}"
+        with open(file_location, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        last_uploaded_file = file_location
+        return {"filename": "temp/" + file.filename}
+    except Exception as e:
+        return {"error": str(e)}
 
-    # print(encoded_img)
+def get_last_uploaded_file():
+    return last_uploaded_file
 
-    output_text = replicate.run(
-        "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
-        input={
-            "image_path": encoded_img,
-            "text_prompt": "What is going on in this image?"
-        }
-    )
-    output = replicate.run(
+@app.post("/", response_class=HTMLResponse)
+async def root(request: Request, item: Item, image_path: str = Depends(get_last_uploaded_file)):
+    if image_path is None:
+        return {"error": "No image has been uploaded yet."}
+
+    try:
+        with open(image_path, "rb") as image_file:
+            encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+        encoded_img = "data:image/jpeg;base64," + encoded_img
+
+        # print(encoded_img)
+        output_text = replicate.run(
+            "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
+            input={
+                "image_path": encoded_img,
+                "text_prompt": "What is going on in this image? Summarize key vibes in 10 words or less."
+            }
+        )
+        output = replicate.run(
         "lucataco/magnet:e8e2ecd4a1dabb58924aa8300b668290cafae166dd36baf65dad9875877de50e",
-        input={
-            "prompt": output_text,
-            "variations": 1
-        }
-    )
-    print(output[0])
 
-    return {output[0]}
+        print(output_text)
+        print(output[0])
+        audio_link = output[0]
+        # return {output[0]}
+
+        return templates.TemplateResponse("result.html", {
+            "request": request, 
+            "output_text": output_text,
+            "audio_link": audio_link
+        })
+    
+    except Exception as e:
+        return {"error": str(e)}
+    
+# async def root(item: Item):
+#     print("submit button clicked")
+#     test = "test data"
+    
+#     image_path = f"static/temp/{file.filename}"
+#     with open(image_path, "rb") as image_file:
+#         encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+
+#     encoded_img = "data:image/jpeg;base64," + encoded_img
+
+#     print(encoded_img)
+
+#     output = replicate.run(
+#         "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
+#         input={
+#             "image_path": encoded_img,
+#             "text_prompt": "What is going on in this image? Summarize key vibes in 10 words or less."
+#         }
+#     )
+#     print(output)
+
+#     return {output}
+

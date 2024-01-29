@@ -15,24 +15,63 @@
 </head>
 <body>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand navbar-dark bg-dark">
+  <!-- <nav class="navbar navbar-expand navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="#">Audible Thoughts</a>
+        <a class="navbar-brand" href="#">Echogram</a>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
             </ul>
         </div>
     </div>
-  </nav>
+  </nav> -->
 
   <!--Other template content goes here-->
-  <main role="main" class="container"></main>
+  <img id="logo" src="/static/logo.png"/>
+
+  <main role="main" class="container">
     {% block content %}{% endblock %}
   </main>
 
 </body>
 
 <style>
+    body {
+        background: linear-gradient(to left, #ff7e5f, #feb47b); 
+    }
+
+    main {
+        height: 90vh;
+        margin: 0;
+        padding: 2em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100vw; 
+    }
+
+    #logo {
+        max-width: 150px;
+        display: block;
+        margin: 2em auto;
+    }
+
+    #progressBar {
+        width:300px;
+    }
+
+    #uploadedImage {
+        max-width: 500px; 
+        max-height: 500px;
+        display: block;
+        /* margin: 0 auto; */
+
+    }
+
+    #uploadForm, #form {
+        display: block;
+        margin: 0 auto;
+    }
+
     #search-form {
         margin-top: 25px;
     }
