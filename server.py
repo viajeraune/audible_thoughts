@@ -76,11 +76,7 @@ async def root(request: Request, item: Item, image_path: str = Depends(get_last_
         )
         output = replicate.run(
         "lucataco/magnet:e8e2ecd4a1dabb58924aa8300b668290cafae166dd36baf65dad9875877de50e",
-        input={
-            "prompt": output_text,
-            "variations": 1
-        }
-    )
+
         print(output_text)
         print(output[0])
         audio_link = output[0]
@@ -117,3 +113,4 @@ async def root(request: Request, item: Item, image_path: str = Depends(get_last_
 #     print(output)
 
 #     return {output}
+
