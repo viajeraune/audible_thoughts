@@ -19,7 +19,12 @@ Implements a simple Bootstrap 5 form submission interface for YOLOv5 detection.
     <progress id="progressBar" value="0" max="100"></progress>
     <div id="status"></div>
     
-    <img id="uploadedImage"/>
+    <img id="uploadedImage" class="invisible"/>
+
+    <video id="uploadedVideoContainer" class="invisible" width="320" height="240" controls>
+        <source src="" id="uploadedVideo" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
 
     <form class="form-inline" id="form">
         <button type="submit">Generate Music</button>
@@ -56,7 +61,18 @@ document.getElementById('submit').addEventListener('click', function() {
     xhr.onload = function() {
         if (xhr.status == 200) {
             var response = JSON.parse(xhr.responseText);
-            document.getElementById('uploadedImage').src = '/static/' + response.filename;
+            if (response.filename.includes(".png") || response.filename.includes(".jp")) {
+                console.log(1)
+                document.getElementById('uploadedImage').src = '/static/' + response.filename;
+                document.getElementById('uploadedVideoContainer').classList.add("invisible")
+                document.getElementById('uploadedImage').classList.remove("invisible")
+            } else if (response.filename.includes(".mp4")) {
+                console.log(2)
+                document.getElementById('uploadedVideo').src = '/static/' + response.filename;
+                document.getElementById('uploadedVideoContainer').load()
+                document.getElementById('uploadedVideoContainer').classList.remove("invisible")
+                document.getElementById('uploadedImage').classList.add("invisible")
+            }
         } else {
             alert("Error uploading file");
         }

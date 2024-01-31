@@ -47,8 +47,11 @@ async def upload(file: UploadFile = File(...)):
     try:
         file_location = f"static/temp/{file.filename}"
         with open(file_location, "wb") as buffer:
+            print(0)
             shutil.copyfileobj(file.file, buffer)
+            print(1)
         last_uploaded_file = file_location
+        print(2)
         return {"filename": "temp/" + file.filename}
     except Exception as e:
         return {"error": str(e)}
@@ -62,21 +65,23 @@ async def root(request: Request, item: Item, image_path: str = Depends(get_last_
         return {"error": "No image has been uploaded yet."}
 
     try:
-        with open(image_path, "rb") as image_file:
-            encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
-        encoded_img = "data:image/jpeg;base64," + encoded_img
+        #with open(image_path, "rb") as image_file:
+        #    encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+        #encoded_img = "data:image/jpeg;base64," + encoded_img
 
         # print(encoded_img)
+        print(image_path)
         output_text = replicate.run(
             "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
             input={
-                "image_path": encoded_img,
+                #"image_path": encoded_img,
+                "video_path": image_path,
                 "text_prompt": "What is going on in this image? Summarize key vibes in 10 words or less."
             }
         )
         output = replicate.run(
         "lucataco/magnet:e8e2ecd4a1dabb58924aa8300b668290cafae166dd36baf65dad9875877de50e",input={
-            "prompt": output_text,
+            "prompt": "high quality environmental background ambient sound and music for " + output_text,
             "variations": 1
         }
     )
