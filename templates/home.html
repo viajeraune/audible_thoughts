@@ -7,13 +7,18 @@ Implements a simple Bootstrap 5 form submission interface for YOLOv5 detection.
 {% block title %} <title>Echogram</title> {% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- <img width="500px" src="/static/fireplace.jpeg"> -->
+<main>
+    <div class="instructions">
+        <h3>How to use:</h3>
+        <p>Upload an image or video and click "Generate Music" to get a link to the generated music file.</p>
+        </div>
+    <div >
+
 
     <form id="uploadForm" enctype="multipart/form-data">
-        Upload image:
+        Upload image (jpeg) or video (mp4):
         <input type="file" name="file" id="file">
-        <input type="button" value="Upload Image" id="submit">
+        <!-- <input type="button" value="Upload Image" id="submit"> -->
       </form>
       
     <progress id="progressBar" value="0" max="100"></progress>
@@ -31,18 +36,21 @@ Implements a simple Bootstrap 5 form submission interface for YOLOv5 detection.
     </form>
 
     <div id="results">
-        <!-- <div id="loadingMessage" style="display: none;">Loading...</div> -->
-
+        <div id="loadingMessage" style="display: none;">Generating background music...</div>
+<!-- 
         <p>Analysis Result:</p>
         <p>{{ output_text }}</p>
         <a href="{{ audio_link }}" target="_blank">
             <button>Listen to Audio</button>
-        </a>
+        </a> -->
     </div>
 </div>
+</main>
 
 <script>
-document.getElementById('submit').addEventListener('click', function() {
+document.getElementById('file').addEventListener('change', function() {
+    if (this.files && this.files.length > 0) {
+
     var form = document.getElementById('uploadForm');
     var formData = new FormData(form);
     var xhr = new XMLHttpRequest();
@@ -79,11 +87,14 @@ document.getElementById('submit').addEventListener('click', function() {
     };
 
     xhr.send(formData);
+}
 });
 
 
 document.getElementById('form').addEventListener('submit', function(e) {
     e.preventDefault();
+
+    document.getElementById('loadingMessage').style.display = 'block';
 
     fetch('/', {
         method: 'POST',
@@ -96,11 +107,12 @@ document.getElementById('form').addEventListener('submit', function(e) {
     })
     .then(response => response.text())
     .then(html => {
+        document.getElementById('loadingMessage').style.display = 'none';
         document.getElementById('results').innerHTML = html;
-        // document.getElementById('results').style.display = 'block';
     })
     .catch(error => {
         console.error('Error:', error);
+        document.getElementById('loadingMessage').style.display = 'none';
     });
 });
 </script>

@@ -65,54 +65,46 @@ async def root(request: Request, item: Item, file_path: str = Depends(get_last_u
         return {"error": "No file has been uploaded yet."}
 
     try:
-<<<<<<< Updated upstream
-        #with open(image_path, "rb") as image_file:
-        #    encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
-        #encoded_img = "data:image/jpeg;base64," + encoded_img
-
-        # print(encoded_img)
-        print(image_path)
-        output_text = replicate.run(
-            "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
-            input={
-                #"image_path": encoded_img,
-                "video_path": image_path,
-                "text_prompt": "What is going on in this image? Summarize key vibes in 10 words or less."
-            }
-        )
-        output = replicate.run(
-        "lucataco/magnet:e8e2ecd4a1dabb58924aa8300b668290cafae166dd36baf65dad9875877de50e",input={
-            "prompt": "high quality environmental background ambient sound and music for " + output_text,
-            "variations": 1
-        }
-    )
-=======
         # Determine file type (image or video) based on file extension
         if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
             mime_type = "image/jpeg"  # Default for most images, adjust if using GIF or PNG
             with open(file_path, "rb") as file:
-                encoded_file = base64.b64encode(file.read()).decode('utf-8')
-            encoded_file = f"data:{mime_type};base64," + encoded_file
+                encoded_img = base64.b64encode(file.read()).decode('utf-8')
+            encoded_img = f"data:{mime_type};base64," + encoded_img
             # Handle as image
             # Use encoded_file in your image processing logic here
+            output_text = replicate.run(
+            "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
+            input={
+                "image_path" : encoded_img,
+                "text_prompt": "What is going on in this image? Summarize key vibes in 10 words or less."
+                }
+            )
         elif file_path.lower().endswith(('.mp4', '.mov', '.avi')):
             mime_type = "video/mp4"  # Adjust based on actual video format
             with open(file_path, "rb") as file:
-                encoded_file = base64.b64encode(file.read()).decode('utf-8')
-            encoded_file = f"data:{mime_type};base64," + encoded_file
+                encoded_vid = base64.b64encode(file.read()).decode('utf-8')
+            encoded_vid = f"data:{mime_type};base64," + encoded_vid
             # Handle as video
             # Use encoded_file in your video processing logic here
+            output_text = replicate.run(
+            "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
+            input={
+                "video_path": encoded_vid, 
+                "text_prompt": "What is going on in this video? Summarize key vibes in 10 words or less."
+                }
+            )
         else:
             return {"error": "Unsupported file type."}
 
-        # Example of using encoded_file with replicate (adjust according to actual usage)
-        output_text = replicate.run(
-            "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
-            input={
-                "video_path": encoded_file,  # Adjust the parameter name as needed
-                "text_prompt": "What is going on in this image or video? Reduce noise, make sound clear and crisp."
-            }
-        )
+        # output_text = replicate.run(
+        #     "nateraw/video-llava:a494250c04691c458f57f2f8ef5785f25bc851e0c91fd349995081d4362322dd",
+        #     input={
+        #         # "video_path": encoded_vid, 
+        #         "image_path" : encoded_img,
+        #         "text_prompt": "What is going on in this image or video? Summarize key vibes in 10 words or less."
+        #     }
+        # )
         output = replicate.run(
             "lucataco/magnet:e8e2ecd4a1dabb58924aa8300b668290cafae166dd36baf65dad9875877de50e",
             input={
@@ -120,7 +112,6 @@ async def root(request: Request, item: Item, file_path: str = Depends(get_last_u
                 "variations": 1
             }
         )
->>>>>>> Stashed changes
 
         print(output_text)
         print(output[0])
