@@ -1,3 +1,8 @@
+# Echogram
+A simple video-to-music webapp. Upload an image or video and click "Generate Music" to get a link to the generated music file.
+
+<img src="static/demo.png" />
+
 ## Setup
 
 Instructions on installing dependencies (fastapi, unicorn): https://intellipaat.com/blog/what-is-fast-api/
